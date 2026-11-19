@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>홈드랍 운영 보드 (데모)</title>
+  <meta name="description" content="접수된 홈드랍 예약을 보고, 같은 시간대·권역끼리 수거 차량을 묶어 추천하는 운영자 화면 데모입니다.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="global-nav" aria-label="전체 메뉴">
+    <div class="in">
+      <a class="brand" href="/">홈드랍</a>
+      <a href="/">예약 챗봇</a>
+      <a href="/admin.html" aria-current="page">관리자 화면</a>
+      <span class="hide-sm" style="color:#86868b">데모 버전</span>
+    </div>
+  </nav>
+
+  <header class="sub-nav">
+    <div class="in">
+      <span class="title">운영 보드</span>
+      <div class="right">
+        <span class="badge demo">데모 데이터</span>
+        <button type="button" class="btn btn-utility" id="reset">데모 예약 다시 넣기</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="tile light" style="padding-top:56px" aria-labelledby="t-res">
+      <div class="wrap" style="max-width:1200px">
+        <h1 class="display" id="t-res" style="font-family:var(--font-display);font-size:40px;font-weight:600;line-height:1.1;margin:0">예약 표</h1>
+        <p class="muted" style="margin:8px 0 0">챗봇에서 예약하면 이 브라우저에 저장되어 바로 여기에 나타나요. 상태는 접수 → 배차 완료 → 수거 완료 → 공항 인도 순서로 바꿔요.</p>
+        <ol class="pipeline" id="pipeline" aria-label="상태별 예약 수"></ol>
+        <div class="toolbar">
+          <span class="caption muted" id="count"></span>
+          <span class="caption muted">이름·전화번호는 지어낸 데모 값입니다</span>
+        </div>
+        <div class="table-wrap">
+          <table class="res">
+            <thead>
+              <tr><th>태그 번호</th><th>예약자</th><th>수거지</th><th>수거 시각</th><th>항공편</th><th>짐</th><th>요금</th><th>상태</th></tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="tile parchment" aria-labelledby="t-board">
+      <div class="wrap" style="max-width:1200px">
+        <h2 class="display" id="t-board">배차 추천</h2>
+        <p class="muted" style="margin:0">같은 수거일 × 2시간 시간대 × 같은 생활권역끼리 한 차량에 묶고, 차량당 캐리어 12개까지 실어요. <span class="badge demo">데모 규칙</span></p>
+        <p class="caption muted" style="margin-top:6px">칸 하나가 캐리어 한 개입니다. 진한 칸은 28인치 이상 대형. 공항 인도가 끝난 예약은 빠져요.</p>
+        <div class="board" id="board"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="legal" style="margin-top:0;border-top:0;padding-top:0">생활권역은 서울 도심·동북·서북·서남·동남과 경기북부·경기남부·인천으로 나눈 데모 기준입니다. 실제 배차 기준은 공항공사·항공사 협의가 필요합니다.</div>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/admin.js"></script>
+</body>
+</html>
