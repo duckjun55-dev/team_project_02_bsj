@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 792 928" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="system-architecture-title system-architecture-desc">
+        <title id="system-architecture-title">홈드랍 예약·안내 챗봇 시스템 설계도</title>
+        <desc id="system-architecture-desc">이용자가 고객 챗봇 화면과 운영 보드를 쓰고, 예약은 브라우저 저장소에 남으며, 챗봇 화면은 API 서버를 불러 답변참고문서에서 근거를 찾고 생성형 AI와 공공데이터포털에 요청하는 3단 구조를 보여 줍니다.</desc>
+        <defs>
+          <style>@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&amp;family=Noto+Sans+KR:wght@400;500;600&amp;display=swap');</style>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#6e6e73"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#0066cc"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#0066cc"/>
+          </marker>
+        </defs>
+
+        <!-- 바탕 -->
+        <rect width="100%" height="100%" fill="#f5f5f7"/>
+
+        <!-- ===== 구역 (가장 먼저) ===== -->
+        <rect x="40" y="136" width="712" height="292" rx="8" fill="rgba(29,29,31,0.02)" stroke="rgba(29,29,31,0.12)" stroke-width="0.8"/>
+        <rect x="248" y="140" width="296" height="16" rx="2" fill="#f5f5f7"/>
+        <text x="396" y="152" fill="#6e6e73" font-size="12" font-weight="500" text-anchor="middle"
+              font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif">브라우저 — 인터넷에 공개되는 화면 (public)</text>
+
+        <rect x="40" y="460" width="712" height="172" rx="8" fill="rgba(29,29,31,0.02)" stroke="rgba(29,29,31,0.12)" stroke-width="0.8"/>
+        <rect x="196" y="464" width="400" height="16" rx="2" fill="#f5f5f7"/>
+        <text x="396" y="476" fill="#6e6e73" font-size="12" font-weight="500" text-anchor="middle"
+              font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif">서버 (api) — API 키는 서버에만: 로컬 .env · Vercel 환경 변수</text>
+
+        <rect x="40" y="680" width="712" height="172" rx="8" fill="rgba(29,29,31,0.02)" stroke="rgba(29,29,31,0.12)" stroke-width="0.8"/>
+        <rect x="292" y="684" width="208" height="16" rx="2" fill="#f5f5f7"/>
+        <text x="396" y="696" fill="#6e6e73" font-size="12" font-weight="500" text-anchor="middle"
+              font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif">외부 서비스 — 인터넷으로 부름</text>
+
+        <!-- ===== 화살표 (상자보다 먼저) ===== -->
+        <!-- 이용자 → 고객 챗봇 화면 -->
+        <path d="M 372 88 V 112 Q 372 120 364 120 H 216 Q 208 120 208 128 V 168"
+              fill="none" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 이용자 → 운영 보드 -->
+        <path d="M 420 88 V 112 Q 420 120 428 120 H 576 Q 584 120 584 128 V 168"
+              fill="none" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 챗봇 화면 → 예약 규칙·저장소 -->
+        <line x1="300" y1="256" x2="300" y2="312" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 운영 보드 → 예약 규칙·저장소 -->
+        <line x1="492" y1="256" x2="492" y2="312" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- 챗봇 화면 → API 서버 (인터넷 호출) -->
+        <path d="M 144 256 V 536 Q 144 544 152 544 H 268"
+              fill="none" stroke="#0066cc" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <!-- API 서버 → 답변참고문서 -->
+        <line x1="524" y1="548" x2="576" y2="548" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <!-- API 서버 → 생성형 AI -->
+        <path d="M 364 596 V 648 Q 364 656 356 656 H 224 Q 216 656 216 664 V 720"
+              fill="none" stroke="#0066cc" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <!-- API 서버 → 공공데이터포털 -->
+        <path d="M 428 596 V 648 Q 428 656 436 656 H 568 Q 576 656 576 664 V 720"
+              fill="none" stroke="#0066cc" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+
+        <!-- ===== 화살표 글자 (가림 상자 + 선과 6px 이상 띄움) ===== -->
+        <g font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif" font-size="12" font-weight="500" text-anchor="middle">
+          <rect x="268" y="96" width="40" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="288" y="108" fill="#6e6e73">대화</text>
+          <rect x="472" y="96" width="64" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="504" y="108" fill="#6e6e73">예약 관리</text>
+          <rect x="308" y="276" width="64" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="340" y="288" fill="#6e6e73">예약 저장</text>
+          <rect x="420" y="276" width="64" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="452" y="288" fill="#6e6e73">상태 변경</text>
+          <rect x="72" y="436" width="64" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="104" y="448" fill="#0066cc">API 호출</text>
+          <rect x="532" y="524" width="36" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="550" y="536" fill="#6e6e73">검색</text>
+          <rect x="248" y="632" width="80" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="288" y="644" fill="#0066cc">질문 + 근거</text>
+          <rect x="464" y="632" width="88" height="16" rx="2" fill="#f5f5f7"/>
+          <text x="508" y="644" fill="#0066cc">항공편 · 혼잡</text>
+        </g>
+
+        <!-- ===== 상자 ===== -->
+        <g font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif" text-anchor="middle">
+
+          <!-- 이용자 (입력) -->
+          <rect x="296" y="24" width="200" height="64" rx="6" fill="#f5f5f7"/>
+          <rect x="296" y="24" width="200" height="64" rx="6" fill="rgba(110,110,115,0.10)" stroke="#86868b" stroke-width="1"/>
+          <rect x="304" y="30" width="32" height="12" rx="2" fill="transparent" stroke="rgba(134,134,139,0.5)" stroke-width="0.8"/>
+          <text x="320" y="39" fill="#6e6e73" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">USER</text>
+          <text x="396" y="60" fill="#1d1d1f" font-size="16" font-weight="600">이용자</text>
+          <text x="396" y="80" fill="#6e6e73" font-size="12">고객 · 운영자</text>
+
+          <!-- 고객 챗봇 화면 -->
+          <rect x="80" y="168" width="256" height="88" rx="6" fill="#f5f5f7"/>
+          <rect x="80" y="168" width="256" height="88" rx="6" fill="#ffffff" stroke="#1d1d1f" stroke-width="1"/>
+          <rect x="88" y="174" width="24" height="12" rx="2" fill="transparent" stroke="rgba(29,29,31,0.4)" stroke-width="0.8"/>
+          <text x="100" y="183" fill="#1d1d1f" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">UI</text>
+          <text x="208" y="208" fill="#1d1d1f" font-size="16" font-weight="600">고객 챗봇 화면</text>
+          <text x="208" y="228" fill="#6e6e73" font-size="12">말로 예약 · 질문 답변 · 예약 확인</text>
+          <text x="208" y="246" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">index.html · chat.js</text>
+
+          <!-- 운영 보드 -->
+          <rect x="456" y="168" width="256" height="88" rx="6" fill="#f5f5f7"/>
+          <rect x="456" y="168" width="256" height="88" rx="6" fill="#ffffff" stroke="#1d1d1f" stroke-width="1"/>
+          <rect x="464" y="174" width="24" height="12" rx="2" fill="transparent" stroke="rgba(29,29,31,0.4)" stroke-width="0.8"/>
+          <text x="476" y="183" fill="#1d1d1f" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">UI</text>
+          <text x="584" y="208" fill="#1d1d1f" font-size="16" font-weight="600">운영 보드</text>
+          <text x="584" y="228" fill="#6e6e73" font-size="12">예약 표 · 상태 4단계 · 배차 추천</text>
+          <text x="584" y="246" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">admin.html · admin.js</text>
+
+          <!-- 예약 규칙 · 저장소 -->
+          <rect x="268" y="312" width="256" height="104" rx="6" fill="#f5f5f7"/>
+          <rect x="268" y="312" width="256" height="104" rx="6" fill="rgba(29,29,31,0.05)" stroke="#6e6e73" stroke-width="1"/>
+          <rect x="276" y="318" width="40" height="12" rx="2" fill="transparent" stroke="rgba(110,110,115,0.5)" stroke-width="0.8"/>
+          <text x="296" y="327" fill="#6e6e73" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">STORE</text>
+          <text x="396" y="352" fill="#1d1d1f" font-size="16" font-weight="600">예약 규칙 · 저장소</text>
+          <text x="396" y="372" fill="#6e6e73" font-size="12">요금·시각 계산 · 예약은 이 브라우저에만</text>
+          <text x="396" y="390" fill="#1d1d1f" font-size="12" font-weight="500">AI 가 안 되면 규칙으로 문장 인식</text>
+          <text x="396" y="408" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">rules.js · store.js</text>
+
+          <!-- API 서버 (강조) -->
+          <rect x="268" y="500" width="256" height="96" rx="6" fill="#f5f5f7"/>
+          <rect x="268" y="500" width="256" height="96" rx="6" fill="rgba(0,102,204,0.08)" stroke="#0066cc" stroke-width="1.2"/>
+          <rect x="276" y="506" width="28" height="12" rx="2" fill="transparent" stroke="rgba(0,102,204,0.5)" stroke-width="0.8"/>
+          <text x="290" y="515" fill="#0066cc" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">API</text>
+          <text x="396" y="540" fill="#1d1d1f" font-size="16" font-weight="600">API 서버</text>
+          <text x="396" y="560" fill="#6e6e73" font-size="12">질문 처리 · 공공 API 대신 부름</text>
+          <text x="396" y="580" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">/api/chat · flight · congestion</text>
+
+          <!-- 답변참고문서 -->
+          <rect x="576" y="500" width="152" height="96" rx="6" fill="#f5f5f7"/>
+          <rect x="576" y="500" width="152" height="96" rx="6" fill="rgba(29,29,31,0.05)" stroke="#6e6e73" stroke-width="1"/>
+          <rect x="584" y="506" width="36" height="12" rx="2" fill="transparent" stroke="rgba(110,110,115,0.5)" stroke-width="0.8"/>
+          <text x="602" y="515" fill="#6e6e73" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">DOCS</text>
+          <text x="652" y="540" fill="#1d1d1f" font-size="16" font-weight="600">답변참고문서</text>
+          <text x="652" y="560" fill="#6e6e73" font-size="12">근거 조각 65개</text>
+          <text x="652" y="580" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">retrieve.js</text>
+
+          <!-- 생성형 AI -->
+          <rect x="80" y="720" width="272" height="112" rx="6" fill="#f5f5f7"/>
+          <rect x="80" y="720" width="272" height="112" rx="6" fill="rgba(29,29,31,0.03)" stroke="rgba(29,29,31,0.30)" stroke-width="1"/>
+          <rect x="88" y="726" width="28" height="12" rx="2" fill="transparent" stroke="rgba(29,29,31,0.22)" stroke-width="0.8"/>
+          <text x="102" y="735" fill="#6e6e73" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">EXT</text>
+          <text x="216" y="760" fill="#1d1d1f" font-size="16" font-weight="600">생성형 AI</text>
+          <text x="216" y="780" fill="#1d1d1f" font-size="12" font-weight="500">Claude → Groq → Gemini 순서</text>
+          <text x="216" y="798" fill="#6e6e73" font-size="12">앞이 실패하면 다음 AI 로 넘어감</text>
+          <text x="216" y="818" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">api/_lib/ai.js</text>
+
+          <!-- 공공데이터포털 -->
+          <rect x="440" y="720" width="272" height="112" rx="6" fill="#f5f5f7"/>
+          <rect x="440" y="720" width="272" height="112" rx="6" fill="rgba(29,29,31,0.03)" stroke="rgba(29,29,31,0.30)" stroke-width="1"/>
+          <rect x="448" y="726" width="28" height="12" rx="2" fill="transparent" stroke="rgba(29,29,31,0.22)" stroke-width="0.8"/>
+          <text x="462" y="735" fill="#6e6e73" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">EXT</text>
+          <text x="576" y="760" fill="#1d1d1f" font-size="16" font-weight="600">공공데이터포털</text>
+          <text x="576" y="780" fill="#1d1d1f" font-size="12" font-weight="500">인천공항 운항 현황 · 승객예고</text>
+          <text x="576" y="798" fill="#6e6e73" font-size="12">실패하면 「시연 값」으로 표시</text>
+          <text x="576" y="818" fill="#6e6e73" font-size="12" font-family="'Geist Mono', monospace">api/_lib/datago.js</text>
+        </g>
+
+        <!-- ===== 범례 (맨 아래 가로 띠) ===== -->
+        <line x1="40" y1="868" x2="752" y2="868" stroke="rgba(29,29,31,0.10)" stroke-width="0.8"/>
+        <g font-family="-apple-system, 'Pretendard Variable', Pretendard, 'Noto Sans KR', 'Malgun Gothic', sans-serif" font-size="12" fill="#6e6e73">
+          <text x="40" y="892" font-weight="600" fill="#1d1d1f">범례</text>
+
+          <rect x="96" y="882" width="16" height="12" rx="2" fill="#ffffff" stroke="#1d1d1f" stroke-width="1"/>
+          <text x="120" y="892">화면</text>
+          <rect x="196" y="882" width="16" height="12" rx="2" fill="rgba(0,102,204,0.08)" stroke="#0066cc" stroke-width="1"/>
+          <text x="220" y="892">핵심(서버)</text>
+          <rect x="316" y="882" width="16" height="12" rx="2" fill="rgba(29,29,31,0.05)" stroke="#6e6e73" stroke-width="1"/>
+          <text x="340" y="892">저장소 · 문서</text>
+          <rect x="452" y="882" width="16" height="12" rx="2" fill="rgba(29,29,31,0.03)" stroke="rgba(29,29,31,0.30)" stroke-width="1"/>
+          <text x="476" y="892">외부 서비스</text>
+          <rect x="572" y="882" width="16" height="12" rx="2" fill="rgba(110,110,115,0.10)" stroke="#86868b" stroke-width="1"/>
+          <text x="596" y="892">이용자</text>
+
+          <line x1="96" y1="912" x2="112" y2="912" stroke="#0066cc" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+          <text x="120" y="916">인터넷 호출(파랑)</text>
+          <line x1="256" y1="912" x2="272" y2="912" stroke="#6e6e73" stroke-width="1.2" marker-end="url(#arrow)"/>
+          <text x="280" y="916">화면·서버 안 연결</text>
+        </g>
+      </svg>
