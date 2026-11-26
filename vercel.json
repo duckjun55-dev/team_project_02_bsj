@@ -3,7 +3,7 @@
   "outputDirectory": "public",
   "functions": {
     "api/*.js": {
-      "includeFiles": "docs/답변참고문서/청킹/**",
+      "includeFiles": "docs/**",
       "maxDuration": 60
     }
   }

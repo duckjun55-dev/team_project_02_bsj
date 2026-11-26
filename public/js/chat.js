@@ -561,8 +561,10 @@ function restart(book = false) {
   greet();
 }
 
+// 첫 인사 — 서버가 docs/페르소나.md 에서 읽어 보내 준다(/api/persona). 받지 못하면 아래 문장(문서와 같은 문장)을 쓴다
+let greeting = '안녕하세요, 홈드랍 도우미예요(데모).\n홈드랍 예약을 도와드리고, 안내 문서에 있는 내용으로 궁금한 점에 답해 드려요.\n「짐 맡기고 싶어요」라고 말하면 예약을 시작해요. 요금이나 맡길 수 없는 물건도 물어보세요.';
 function greet() {
-  addBot('안녕하세요. 집에서 캐리어를 수거해 인천국제공항까지 옮겨 드리는 홈드랍 예약 챗봇이에요(데모).\n「짐 맡기고 싶어요」라고 말하면 예약을 시작해요. 요금이나 맡길 수 없는 물건도 물어보세요.');
+  addBot(greeting);
   quick(['짐 맡기고 싶어요', '요금이 얼마예요?', '맡길 수 없는 물건은?', '예약 확인']);
 }
 
@@ -614,4 +616,4 @@ $('#prohibited').replaceChildren(...R.PROHIBITED.map((p) => el('div', {}, el('h3
 setMode(mode);
 store.load();
 render();
-greet();
+api('/api/persona').then((p) => { if (p?.ok && p.greeting) greeting = p.greeting; }).finally(() => { if (!log.childElementCount) greet(); });

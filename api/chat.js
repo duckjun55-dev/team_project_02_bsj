@@ -4,8 +4,11 @@
 import { callAI } from './_lib/ai.js';
 import { retrieve, unknownWords } from './_lib/retrieve.js';
 import { kstToday } from './_lib/datago.js';
+import { loadPersona } from './_lib/persona.js';
 
-const CONTACT = '문서에서 확인하지 못했습니다. 이지드랍 고객센터 02-6010-1220 또는 인천국제공항 고객센터 1577-2600 으로 문의해 주세요.';
+// 「모를 때의 답」 — docs/페르소나.md 에서 읽고, 읽지 못하면 이 문장을 쓴다(문의처는 빠지면 안 된다)
+const DEFAULT_CONTACT = '안내 문서에서는 확인하지 못했어요. 이지드랍 고객센터(02-6010-1220)나 인천국제공항 고객센터(1577-2600)에 문의해 주세요.';
+const CONTACT = loadPersona()?.unknown || DEFAULT_CONTACT;
 const EASYDROP_NOTE = '이지드랍 기준이며 홈드랍은 확인 필요';
 
 function parseJSON(text) {
@@ -36,7 +39,8 @@ const EXTRACT_SYSTEM = `너는 홈드랍(집에서 캐리어를 수거해 인천
 「오전/오후」를 24시간으로 바꾼다. 「대형 없음」이면 large 는 0.
 지금 묻고 있는 단계가 주어지면, 숫자만 말한 경우 그 단계의 항목으로 본다.`;
 
-const ANSWER_SYSTEM = `너는 인천공항 홈드랍 예약 챗봇의 안내원이다. 반드시 아래 규칙을 지킨다.
+// 「AI 답변 규칙」 — 페르소나보다 앞에 두고, 페르소나와 부딪치면 규칙이 이긴다
+const ANSWER_RULES = `너는 인천공항 홈드랍 예약 챗봇의 안내원이다. 반드시 아래 규칙을 지킨다.
 1. 아래 <문서> 안의 내용으로만 답한다. 문서에 없는 내용은 지어내지 않는다.
 2. 문서에서 답을 찾을 수 없으면 unknown 을 true 로 한다.
 3. 문서끼리 값이 다르면 문서별 값과 문서 이름을 모두 보여 준다. 어느 쪽이 맞는지 단정하지 않는다.
@@ -45,6 +49,12 @@ const ANSWER_SYSTEM = `너는 인천공항 홈드랍 예약 챗봇의 안내원�
 6. 쉬운 한국어로 3~6문장. 목록이 필요하면 「- 」로 시작하는 줄을 쓴다. 마크다운 굵게(**)는 쓰지 않는다.
 JSON 하나로만 답한다: {"answer":"답변", "sources":["근거로 쓴 문서 이름", ...], "unknown":false}
 sources 에는 <문서 이름="…"> 의 이름을 그대로 쓴다.`;
+
+// 시스템 프롬프트 = 규칙 → 페르소나(docs/페르소나.md). 문서가 없으면 규칙만
+const persona = loadPersona();
+const ANSWER_SYSTEM = persona
+  ? `${ANSWER_RULES}\n\n<페르소나>\n아래는 말투와 역할이다. 위 규칙과 부딪치면 위 규칙을 따른다.\n${persona.prompt}\n</페르소나>`
+  : ANSWER_RULES;
 
 async function extract({ text, today, step }) {
   const user = `오늘: ${today}\n지금 묻는 단계: ${step || '없음'}\n사용자 문장: ${text}`;
