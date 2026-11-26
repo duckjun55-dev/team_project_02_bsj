@@ -112,6 +112,7 @@ function easydrop(question, answerText, sources) {
 
 // ---------- 입력 검사 (화면의 300자 제한은 화면에서만 걸리므로 서버에서도 막는다) ----------
 const MAX_LEN = 300;
+const maskPhone = (t) => t.replace(/01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g, '[전화번호]');
 const STEPS = ['start', 'customer', 'flight', 'bags', 'pickup', 'confirm', 'done'];
 function checkInput(body) {
   const field = body.mode === 'extract' ? 'text' : 'question';
@@ -135,6 +136,8 @@ export default async function handler(req, res) {
     if (!['extract', 'answer'].includes(body.mode)) return res.status(400).json({ ok: false, error: 'mode 는 extract 또는 answer' });
     const bad = checkInput(body);
     if (bad) return res.status(400).json({ ok: false, error: bad });
+    // 휴대폰 번호는 AI 에 보내지 않는다(화면이 이미 가리지만, 다른 경로로 들어온 요청까지 막는다)
+    for (const k of ['text', 'question']) if (typeof body[k] === 'string') body[k] = maskPhone(body[k]);
     if (body.mode === 'extract') return res.status(200).json(await extract(body));
     return res.status(200).json(await answer({ question: body.question, rule: body.rule === true }));
   } catch (e) {

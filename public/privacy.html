@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개인정보처리방침 · 홈드랍</title>
+  <meta name="description" content="홈드랍 예약 챗봇이 어떤 개인정보를 왜 받고, 얼마나 보관하고, 어떻게 지우는지 안내합니다.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="global-nav" aria-label="전체 메뉴">
+    <div class="in">
+      <a class="brand" href="/">홈드랍</a>
+      <a href="/">예약 챗봇</a>
+      <a href="/terms.html">이용약관</a>
+      <a href="/privacy.html" aria-current="page">개인정보처리방침</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="tile light" style="padding-top:48px">
+      <article class="doc-card">
+        <h1>개인정보처리방침</h1>
+        <p class="toc">시행일 <span class="blank">[YYYY-MM-DD]</span> · 판 2026-11-26</p>
+        <p class="notice"><span class="badge demo">데모</span> 노란 칸(<span class="blank">[ ]</span>)은 실제 서비스를 시작하기 전에 운영자가 채워야 하는 곳입니다. 법률 검토를 거친 문서가 아닙니다.</p>
+
+        <p><span class="blank">[회사명]</span>(이하 「회사」)은 「개인정보 보호법」에 따라 이용자의 개인정보를 보호하고, 관련 문의를 빠르게 처리하기 위해 아래와 같이 방침을 둡니다.</p>
+
+        <h2>1. 처리하는 개인정보와 목적</h2>
+        <div class="table-scroll">
+          <table>
+            <tr><th>항목</th><th>목적</th><th>필수 여부</th></tr>
+            <tr><td>성함, 휴대폰 번호</td><td>예약자 확인, 수거 30분 전 기사 연락</td><td>필수</td></tr>
+            <tr><td>수거 주소</td><td>짐 수거, 수거 차량 배정(생활권역 묶기)</td><td>필수</td></tr>
+            <tr><td>항공편 번호, 출발 날짜·시각, 터미널</td><td>수거 가능 시각 계산, 공항 도착 시각 안내</td><td>필수</td></tr>
+            <tr><td>캐리어 개수, 대형 개수</td><td>요금 계산, 차량 적재 계획</td><td>필수</td></tr>
+            <tr><td>동의한 날짜와 판</td><td>동의 기록 보관</td><td>자동</td></tr>
+          </table>
+        </div>
+        <p>주민등록번호, 여권번호, 결제 정보는 받지 않습니다.</p>
+
+        <h2>2. 보유 기간과 파기</h2>
+        <ol>
+          <li>예약 정보는 <strong>수거일로부터 30일</strong>이 지나면 자동으로 지웁니다.</li>
+          <li>이용자가 요청하면 그 전에도 바로 지웁니다(아래 6번).</li>
+          <li>법령에 따라 보관해야 하는 경우(예: 대금 결제 기록 5년, 소비자 불만·분쟁 기록 3년 — 「전자상거래 등에서의 소비자보호에 관한 법률」)에는 그 기간 동안 따로 보관한 뒤 지웁니다. <span class="blank">[결제 도입 시 적용 여부 확인]</span></li>
+        </ol>
+
+        <h2>3. 저장 위치</h2>
+        <p>현재 데모 버전은 예약 정보를 회사 서버가 아니라 <strong>이용자 브라우저의 저장소(localStorage)</strong>에만 저장합니다. 같은 브라우저에서만 보이며, 브라우저 데이터를 지우면 함께 지워집니다. <span class="blank">[실제 서비스: 서버 저장 위치·암호화 방식 기재]</span></p>
+
+        <h2>4. AI 와 외부 서비스 이용</h2>
+        <ol>
+          <li><strong>성함·휴대폰 번호·주소는 AI 로 보내지 않습니다.</strong> 고객 정보 단계의 문장은 브라우저 안의 규칙으로만 알아듣습니다.</li>
+          <li>요금·금지 물품 같은 <strong>질문 문장</strong>과 항공편·짐·수거 시각 단계의 문장은 답변과 항목 인식을 위해 아래 AI 서비스로 보낼 수 있습니다. 문장 속 휴대폰 번호는 보내기 전에 자동으로 「[전화번호]」로 가립니다. 질문에는 개인정보를 적지 마세요.</li>
+        </ol>
+        <div class="table-scroll">
+          <table>
+            <tr><th>받는 곳</th><th>나라</th><th>보내는 것</th><th>목적</th></tr>
+            <tr><td>Anthropic (Claude)</td><td>미국</td><td rowspan="3">질문·항목 문장 (개인정보 제외)</td><td rowspan="3">답변 작성, 항목 인식 — 앞 서비스가 실패하면 다음 서비스로 넘어감</td></tr>
+            <tr><td>Groq</td><td>미국</td></tr>
+            <tr><td>Google (Gemini)</td><td>미국</td></tr>
+            <tr><td>인천국제공항공사 (공공데이터포털)</td><td>대한민국</td><td>조회 조건(오늘·내일 구분 등) — 편명·개인정보는 보내지 않음</td><td>항공편 운항 정보, 출국장 혼잡 예상 조회</td></tr>
+            <tr><td>Vercel Inc. (호스팅)</td><td>미국</td><td>위 요청이 지나가는 서버</td><td>웹 화면과 서버 운영 (예약 정보는 저장하지 않음)</td></tr>
+          </table>
+        </div>
+        <p>각 AI 서비스가 보낸 문장을 보관하는 기간과 학습 이용 여부는 각 회사의 API 정책을 따릅니다. <span class="blank">[계약·설정 확인 후 기재]</span></p>
+
+        <h2>5. 제3자 제공과 처리 위탁</h2>
+        <ol>
+          <li>회사는 이용자의 동의나 법률의 근거 없이 개인정보를 다른 사람에게 주지 않습니다.</li>
+          <li>짐 수거를 위해 수거 기사(또는 운송 업체)에게 성함·휴대폰 번호·수거 주소·수거 시각을 전달합니다: <span class="blank">[수탁 업체명 · 위탁 업무]</span></li>
+        </ol>
+
+        <h2>6. 이용자의 권리와 행사 방법</h2>
+        <p>이용자는 언제든지 자신의 개인정보를 열람·정정·삭제하거나 처리 정지를 요구할 수 있습니다.</p>
+        <ul>
+          <li><strong>열람</strong>: 챗봇에 「예약 확인 태그 번호」(예: 예약 확인 HD-1121-AB12)</li>
+          <li><strong>삭제</strong>: 챗봇에 「예약 삭제 태그 번호」 → 「삭제 확정」</li>
+          <li><strong>정정·그 밖의 요청</strong>: 아래 보호책임자에게 연락</li>
+        </ul>
+        <p>동의하지 않을 권리가 있습니다. 다만 필수 항목에 동의하지 않으면 예약은 할 수 없고, 질문은 계속할 수 있습니다.</p>
+
+        <h2>7. 안전하게 지키기 위한 조치</h2>
+        <ul>
+          <li>필요한 항목만 받기, 고객 정보를 AI 로 보내지 않기, 휴대폰 번호 자동 가리기</li>
+          <li>보유 기간이 지난 예약 자동 삭제</li>
+          <li>API 키는 코드가 아닌 서버 환경 변수에만 보관</li>
+          <li><span class="blank">[실제 서비스: 관리자 접근 통제(로그인), 접속 기록 보관, 저장 데이터 암호화]</span></li>
+        </ul>
+
+        <h2>8. 자동으로 저장되는 정보</h2>
+        <p>쿠키는 쓰지 않습니다. 브라우저 저장소(localStorage)에 예약 정보와 「AI 모드 / 규칙 모드」 선택만 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 모두 지워집니다.</p>
+
+        <h2>9. 개인정보 보호책임자</h2>
+        <div class="table-scroll">
+          <table>
+            <tr><th>이름 · 직책</th><td><span class="blank">[이름]</span> · <span class="blank">[직책]</span></td></tr>
+            <tr><th>연락처</th><td><span class="blank">[전화번호]</span> · <span class="blank">[이메일]</span></td></tr>
+          </table>
+        </div>
+
+        <h2>10. 권리 침해 구제</h2>
+        <p>개인정보 침해로 상담이나 구제가 필요하면 아래 기관에 문의할 수 있습니다.</p>
+        <ul>
+          <li>개인정보분쟁조정위원회: 국번 없이 1833-6972 (www.kopico.go.kr)</li>
+          <li>개인정보침해신고센터: 국번 없이 118 (privacy.kisa.or.kr)</li>
+          <li>대검찰청: 국번 없이 1301 (www.spo.go.kr)</li>
+          <li>경찰청: 국번 없이 182 (ecrm.police.go.kr)</li>
+        </ul>
+
+        <h2>11. 방침 변경</h2>
+        <p>방침을 바꾸면 시행 7일 전부터 이 페이지에 알리고, 바뀐 판으로 다시 동의를 받습니다.</p>
+        <p><a href="/terms.html">이용약관 보기</a></p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

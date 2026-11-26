@@ -48,6 +48,16 @@ function refreshDemo(list) {
   return { list: out, changed };
 }
 
+// 개인정보 보유 기간 — 수거일로부터 이 날수가 지나면 예약(고객 정보 포함)을 지운다. 개인정보처리방침과 같은 값.
+export const KEEP_DAYS = 30;
+
+/** 보유 기간이 지난 실제 예약을 뺀다(데모 예약은 날짜를 매번 다시 맞추므로 빼지 않는다) */
+function purgeExpired(list) {
+  const limit = shift(-KEEP_DAYS);
+  const kept = list.filter((r) => r.demo || !r.pickupDate || r.pickupDate >= limit);
+  return { list: kept, changed: kept.length !== list.length };
+}
+
 export function load() {
   if (memory) return memory;
   let list = null;
@@ -57,8 +67,9 @@ export function load() {
   } catch { /* 저장소를 못 씀 */ }
   if (!Array.isArray(list)) { memory = seed(); save(memory); return memory; }
   const fresh = refreshDemo(list);
-  memory = fresh.list;
-  if (fresh.changed) save(memory);
+  const kept = purgeExpired(fresh.list);
+  memory = kept.list;
+  if (fresh.changed || kept.changed) save(memory);
   return memory;
 }
 
@@ -81,6 +92,15 @@ export function update(tag, patch) {
   const list = load().map((r) => (r.tag === tag ? { ...r, ...patch } : r));
   save(list);
   return list;
+}
+
+/** 예약 하나를 지운다(이용자의 삭제 요청). 지웠으면 true */
+export function remove(tag) {
+  const list = load();
+  const kept = list.filter((r) => r.tag.toUpperCase() !== String(tag).toUpperCase());
+  if (kept.length === list.length) return false;
+  save(kept);
+  return true;
 }
 
 export function reset() {

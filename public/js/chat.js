@@ -31,7 +31,15 @@ const quickBox = $('#quick');
 const input = $('#input');
 
 let state = fresh();
-function fresh() { return { step: 'start', r: {}, busy: false, flightKey: null, flightInfo: null }; }
+function fresh() { return { step: 'start', r: {}, busy: false, flightKey: null, flightInfo: null, consent: null }; }
+
+// ---------- 개인정보 ----------
+// 동의 문구를 바꾸면 날짜를 올린다 — 예약 기록에 어떤 판에 동의했는지 남긴다
+const CONSENT_VERSION = '2026-11-26';
+const PHONE_RE = /01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g;
+// AI 로 보내기 전에 휴대폰 번호를 가린다(질문에 실수로 적은 경우 대비 — 서버도 한 번 더 가린다)
+const maskPhone = (t) => String(t).replace(PHONE_RE, '[전화번호]');
+const CUSTOMER_KEYS = ['name', 'phone', 'address'];
 // 대화 번호 — 「처음부터」를 누를 때마다 1씩 올라간다. 늦게 도착한 옛 대화의 답은 번호가 달라 버린다
 let conv = 0;
 let mode = 'ai';
@@ -92,6 +100,7 @@ function metaOf(res, kind) {
   if (res?.provider) parts.push(`${kind} AI · ${res.provider}${res.model ? ` (${res.model})` : ''}`);
   else if (res?.mode === 'rule' || res?.via === 'rule') parts.push(`${kind} · 규칙 모드`);
   else if (res?.via === 'quick') parts.push(`${kind} · 규칙(바로 인식)`);
+  else if (res?.via === 'private') parts.push(`${kind} · 규칙(고객 정보는 AI 에 보내지 않아요)`);
   else if (res?.mode === 'none') parts.push('문서에서 찾지 못함');
   const out = [el('span', { text: parts.join('') })];
   if (failed.length) out.push(el('span', { text: `· 앞선 시도: ${failed.join(', ')}` }));
@@ -158,11 +167,14 @@ function missingOf(step, r = state.r) {
 async function extract(text) {
   const rule = clean(R.parseRule(text, state.step, state.r));
   if (mode === 'rule') return { fields: rule, via: 'rule' };
+  // 고객 정보(성함·휴대폰·주소)는 해외 AI 로 보내지 않는다 — 고객 정보 단계이거나 문장에 그런 정보가 보이면 규칙으로만 알아듣는다
+  const personal = CUSTOMER_KEYS.some((k) => rule[k] != null) || /(성함|이름|주소|휴대폰|핸드폰|전화|연락처)/.test(text);
+  if (state.step === 'customer' || personal) return { fields: rule, via: 'private' };
   // 규칙으로 이 단계에 필요한 것을 다 알아냈으면 AI 를 부르지 않는다(빠르고 한도도 아낀다)
   const after = { ...state.r, ...rule };
   const short = text.trim().length <= 6 && Object.keys(rule).length > 0;
   if ((NEED[state.step] && missingOf(state.step, after).length === 0) || short) return { fields: rule, via: 'quick' };
-  const res = await api('/api/chat', { mode: 'extract', text, today: R.todayKST(), step: state.step });
+  const res = await api('/api/chat', { mode: 'extract', text: maskPhone(text), today: R.todayKST(), step: state.step });
   if (res?.ok) {
     const ai = clean(res.fields);
     // 캐리어 수를 이미 받았는데 「대형 1개」처럼 대형만 말했으면, AI 가 뽑은 캐리어 수는 버린다
@@ -175,7 +187,7 @@ async function extract(text) {
 // ---------- 질문 답하기 ----------
 async function answer(text) {
   const done = typing();
-  const res = await api('/api/chat', { mode: 'answer', question: text, rule: mode === 'rule' });
+  const res = await api('/api/chat', { mode: 'answer', question: maskPhone(text), rule: mode === 'rule' });
   done();
   if (!res?.ok) {
     addBot('지금은 답을 찾지 못했어요. 이지드랍 고객센터 02-6010-1220 또는 인천국제공항 고객센터 1577-2600 으로 문의해 주세요.',
@@ -190,6 +202,7 @@ function ask() {
   const r = state.r;
   const miss = missingOf(state.step);
   if (state.step === 'customer') {
+    if (!state.consent) { showConsent(); return; }
     if (miss.length === 3) {
       addBot('좋아요, 홈드랍 예약을 도와드릴게요.\n먼저 예약자 성함, 휴대폰 번호, 수거 주소(구 이름 포함)를 알려 주세요. 한 번에 적어도 돼요.\n예) 홍길동, 010-1234-5678, 서울 마포구 월드컵로 00\n\n※ 데모라서 실제 개인정보는 입력하지 마세요.');
     } else addBot(`${listOf(miss)}도 알려 주세요.` + (miss.includes('address') && r.address ? '\n주소에 「○○구」나 「○○시」를 넣어 주세요.' : ''));
@@ -233,6 +246,64 @@ function showConfirm() {
     el('dl', {}, ...R.PROHIBITED.flatMap((p) => [el('dt', { text: p.group }), el('dd', { text: p.items })])));
   addBot('요금과 맡길 수 없는 물건을 확인해 주세요. 이대로 예약할까요?', { cards: [card, ban] });
   quick(['예약하기', '고칠게요']);
+}
+
+// ---------- 개인정보 수집·이용 동의 ----------
+// 고객 정보를 묻기 전에 한 번 받는다. 두 칸을 모두 체크해야 「동의하고 계속」이 눌린다.
+function showConsent() {
+  const myConv = conv;
+  const box = (id, text, href, linkText) => el('label', { class: 'consent-row' },
+    el('input', { type: 'checkbox', id }),
+    el('span', {}, el('b', { text: '[필수] ' }), text, ' ',
+      el('a', { href, target: '_blank', rel: 'noopener', text: linkText })));
+  const terms = box(`c-terms-${myConv}`, '이용약관에 동의합니다.', '/terms.html', '약관 보기');
+  const priv = box(`c-priv-${myConv}`, '개인정보 수집·이용에 동의합니다.', '/privacy.html', '처리방침 보기');
+  const agree = el('button', { type: 'button', class: 'btn btn-primary', disabled: true, text: '동의하고 계속' });
+  const decline = el('button', { type: 'button', class: 'btn btn-ghost', text: '동의하지 않음' });
+  const card = el('div', { class: 'info-card consent' },
+    el('div', { class: 'head' }, el('span', { text: '개인정보 수집·이용 동의' }), badge('필수', 'check')),
+    el('dl', {},
+      el('dt', { text: '수집 항목' }), el('dd', { text: '성함, 휴대폰 번호, 수거 주소, 항공편·출발 일시, 짐 개수' }),
+      el('dt', { text: '이용 목적' }), el('dd', { text: '짐 수거와 공항 운송, 수거 전 연락, 예약 확인' }),
+      el('dt', { text: '보유 기간' }), el('dd', { text: `수거일로부터 ${store.KEEP_DAYS}일 뒤 자동 삭제(그 전에도 삭제 요청 가능)` }),
+      el('dt', { text: '거부할 권리' }), el('dd', { text: '동의하지 않을 수 있어요. 다만 동의하지 않으면 예약은 할 수 없고, 질문은 계속할 수 있어요.' })),
+    el('p', { class: 'consent-note', text: '고객 정보는 AI 로 보내지 않고, 지금은 이 브라우저에만 저장돼요.' }),
+    terms, priv,
+    el('div', { class: 'consent-actions' }, agree, decline));
+  const inputs = card.querySelectorAll('input');
+  const sync = () => { agree.disabled = ![...inputs].every((i) => i.checked); };
+  inputs.forEach((i) => i.addEventListener('change', sync));
+  const lock = () => { inputs.forEach((i) => { i.disabled = true; }); agree.disabled = true; decline.disabled = true; };
+  agree.addEventListener('click', () => {
+    if (state.busy || myConv !== conv || state.consent) return;
+    state.consent = { at: new Date().toISOString(), version: CONSENT_VERSION };
+    lock();
+    addUser('동의합니다');
+    ask();
+  });
+  decline.addEventListener('click', () => {
+    if (state.busy || myConv !== conv || state.consent) return;
+    lock();
+    addUser('동의하지 않음');
+    state = fresh();
+    render();
+    addBot('동의 없이는 예약을 할 수 없어요. 요금이나 맡길 수 없는 물건 같은 질문은 계속할 수 있어요.\n마음이 바뀌면 「짐 맡기고 싶어요」라고 말해 주세요.');
+    quick(['짐 맡기고 싶어요', '요금이 얼마예요?', '맡길 수 없는 물건은?']);
+  });
+  addBot('예약을 위해 성함·휴대폰 번호·주소를 받기 전에 동의를 먼저 받을게요.', { cards: [card] });
+  quick([]);
+}
+
+// ---------- 예약 삭제(이용자 요청) ----------
+function askDelete(tag) {
+  const rec = store.find(tag);
+  if (!rec) { addBot(`${tag} 예약을 이 브라우저에서 찾지 못했어요. 예약은 예약한 브라우저에만 저장돼요(데모).`); return; }
+  addBot(`${rec.tag} 예약과 그 안의 고객 정보(성함·휴대폰·주소)를 지울까요? 지우면 되돌릴 수 없어요.`);
+  quick([`삭제 확정 ${rec.tag}`, '그만두기']);
+}
+function doDelete(tag) {
+  addBot(store.remove(tag) ? `${tag} 예약과 고객 정보를 지웠어요.` : `${tag} 예약을 찾지 못했어요. 이미 지워졌을 수 있어요.`);
+  quick(state.step === 'start' || state.step === 'done' ? ['짐 맡기고 싶어요', '예약 확인'] : []);
 }
 
 // ---------- 항공편 조회 (운항 현황 API — 실패해도 예약은 계속) ----------
@@ -322,7 +393,7 @@ function finalize() {
     flight: r.flight, departDate: r.departDate, departTime: r.departTime, terminal: r.terminal,
     bags: r.bags, large: r.large || 0, pickupDate: r.pickupDate, pickupTime: r.pickupTime,
     fee: R.fee(r.bags, r.large || 0), status: '접수', flightSource: state.flightInfo?.source || '시연 값',
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(), consent: state.consent,
   };
   store.add(rec);
   state.step = 'done';
@@ -341,6 +412,7 @@ function showReservation(tag) {
   const sch = R.schedule(rec);
   const steps = R.STATUSES.map((s) => (s === rec.status ? `[${s}]` : s)).join(' → ');
   addBot(`${rec.tag} 예약 상태예요.\n${steps}\n\n수거 ${R.fmtDT(rec.pickupDate, rec.pickupTime)} · 기사 연락 ${sch.call.time}\n공항 도착 예정 ${R.fmtDT(sch.arrive.date, sch.arrive.time)} (데모 값)`);
+  if (state.step === 'start' || state.step === 'done') quick([`예약 삭제 ${rec.tag}`]);
 }
 
 // ---------- 대화 처리 ----------
@@ -356,8 +428,20 @@ async function handle(text) {
     if (/^(처음부터|새 예약)$/.test(text.trim())) { restart(text.trim() === '새 예약'); return; }
     if (text.trim() === '관리자 화면에서 보기') { location.href = '/admin.html'; return; }
     const tag = text.match(TAG);
+    if (tag && /^삭제\s*확정/.test(text.trim())) { doDelete(tag[0].toUpperCase()); return; }
+    if (tag && /(삭제|지워|지우|취소)/.test(text)) { askDelete(tag[0].toUpperCase()); return; }
     if (tag) { showReservation(tag[0].toUpperCase()); return; }
+    if (text.trim() === '그만두기') { addBot('지우지 않았어요.'); return; }
+    if (/예약\s*(삭제|취소)/.test(text)) { addBot('지울 예약의 태그 번호를 알려 주세요. 예) 예약 삭제 HD-1121-AB12'); return; }
     if (/예약\s*(확인|조회)/.test(text)) { addBot('태그 번호를 알려 주세요. 예) HD-1121-AB12'); return; }
+
+    // 동의 전에는 고객 정보를 받지 않는다 — 질문에는 답하고, 아니면 동의 카드를 다시 안내한다
+    if (state.step === 'customer' && !state.consent) {
+      const f = R.parseRule(text, 'start');
+      if (f.isQuestion) { await answer(text); return; }
+      addBot('위 동의 카드에서 두 칸을 체크하고 「동의하고 계속」을 눌러 주세요. 동의 전에 적은 내용은 저장하지 않아요.');
+      return;
+    }
 
     if (state.step === 'start' || state.step === 'done') {
       if (BOOK.test(text) && !/[?？]|얼마|되나요|돼요|있나요/.test(text)) {
@@ -365,7 +449,8 @@ async function handle(text) {
         render();
         // 첫 문장에 이미 정보가 있으면 함께 채운다(예: 「10월 20일 9시 25분 비행기, 캐리어 2개」)
         const ex = await withTyping(() => extract(text));
-        delete ex.fields.name; // 첫 문장(「짐 맡기고 싶어요」)에서는 이름을 뽑지 않는다
+        // 첫 문장(「짐 맡기고 싶어요」)에서는 이름을 뽑지 않고, 동의 전이라 휴대폰·주소도 반영하지 않는다
+        for (const k of CUSTOMER_KEYS) delete ex.fields[k];
         apply(ex.fields);
         await afterApply();
         return;
