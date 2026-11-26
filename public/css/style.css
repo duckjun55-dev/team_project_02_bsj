@@ -27,12 +27,17 @@
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Apple SD Gothic Neo", "Pretendard Variable", Pretendard, system-ui, sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", "Pretendard Variable", Pretendard, system-ui, sans-serif;
   --product-shadow: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+  /* 페이지 배경 — 남색 */
+  --navy: #0b1f4b;
+  --navy-2: #12295c;
+  --navy-line: rgba(255, 255, 255, 0.16);
+  --on-navy-muted: #c3cde3;
 }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  margin: 0; background: var(--canvas); color: var(--ink);
+  margin: 0; background: var(--navy); color: var(--ink);
   font-family: var(--font); font-size: 17px; line-height: 1.47; letter-spacing: -0.374px;
   word-break: keep-all;
 }
@@ -218,6 +223,26 @@ table.res tr.new td { background: #f2f7fd; }
 .vehicle ul { list-style: none; margin: 12px 0 0; padding: 0; font-size: 14px; letter-spacing: -0.224px; }
 .vehicle li { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-top: 1px solid var(--divider-soft); }
 .empty-state { padding: 40px; text-align: center; color: var(--ink-48); background: #fff; border-radius: var(--r-lg); border: 1px dashed var(--hairline); }
+
+/* ---------- 남색 배경 ----------
+   흰·파치먼트 타일과 푸터를 남색으로 바꾸고, 그 위에 바로 놓인 글자만 밝게 한다.
+   (대화 상자·요약·표·차량 카드 같은 흰 카드 안 글자는 그대로) */
+.tile.light, .tile.parchment { color: #fff; }
+.tile.light { background: var(--navy); }
+.tile.parchment { background: var(--navy-2); }
+.tile.light .muted, .tile.parchment .muted,
+.hero .lead, .hero .warn { color: var(--on-navy-muted); }
+.hero .warn strong { color: #fff; }
+.tile.light .btn-ghost, .tile.parchment .btn-ghost { color: var(--primary-on-dark); border-color: var(--primary-on-dark); }
+.pipeline li { background: rgba(255, 255, 255, 0.08); }
+.pipeline li + li::before { color: var(--on-navy-muted); }
+.pipeline .l { color: var(--on-navy-muted); }
+.chat-card, .summary, .vehicle, .table-wrap, .empty-state, .steps li, .bagtag { color: var(--ink); }
+.tile :is(.chat-card, .summary, .vehicle, .table-wrap, .empty-state) .muted { color: var(--ink-48); }
+.footer { background: var(--navy); color: var(--on-navy-muted); border-top: 1px solid var(--navy-line); }
+.footer h4 { color: #fff; }
+.footer .legal { color: var(--on-navy-muted); border-top-color: var(--navy-line); }
+.footer a { color: var(--primary-on-dark); }
 
 /* ---------- 반응형 ---------- */
 @media (max-width: 1068px) { .hero h1 { font-size: 40px; } }
