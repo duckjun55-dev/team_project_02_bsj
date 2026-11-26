@@ -244,6 +244,13 @@ function showConfirm() {
   const ban = el('div', { class: 'info-card' },
     el('div', { class: 'head' }, el('span', { text: '맡길 수 없는 물건' }), badge('데모 규칙', 'demo')),
     el('dl', {}, ...R.PROHIBITED.flatMap((p) => [el('dt', { text: p.group }), el('dd', { text: p.items })])));
+  // 확인 질문 바로 위에 예약 내용을 한 말풍선으로 요약한다(기획서 7장 6단계)
+  addBot(['예약 내용을 요약해 드려요.',
+    `· 성함: ${r.name}`,
+    `· 수거 일시: ${R.fmtDT(r.pickupDate, r.pickupTime)}`,
+    `· 편명: ${r.flight}`,
+    `· 짐: 캐리어 ${r.bags}개${r.large ? ` (대형 ${r.large}개)` : ''}`,
+    `· 요금: ${R.won(f)} (데모 요금)`].join('\n'));
   addBot('요금과 맡길 수 없는 물건을 확인해 주세요. 이대로 예약할까요?', { cards: [card, ban] });
   quick(['예약하기', '고칠게요']);
 }
