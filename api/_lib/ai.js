@@ -1,4 +1,5 @@
 // AI 부르기 — CLAUDE_API_KEY → GROQ_API_KEY → GEMINI_API_KEY 순서.
+// 키 이름은 끝에 S 가 붙은 것(GROQ_API_KEYS · GEMINI_API_KEYS)도 받는다 — 예전 배포 가이드가 그 이름으로 안내했다.
 // 앞이 실패하면(키 비어 있음 · 오류 · 시간 초과) 다음으로 넘어가고, 누가 답했는지와 시도 기록을 돌려준다.
 // 모델 이름은 코드에 고정하지 않고, 키로 모델 목록을 조회해 고른다(404 가 나면 모델 이름부터 의심).
 import Anthropic from '@anthropic-ai/sdk';
@@ -128,9 +129,9 @@ async function callGemini(key, model, { system, messages, maxTokens, json }) {
 }
 
 const PROVIDERS = [
-  { name: 'claude', label: 'Claude', env: 'CLAUDE_API_KEY', call: callClaude },
-  { name: 'groq', label: 'Groq', env: 'GROQ_API_KEY', call: callGroq },
-  { name: 'gemini', label: 'Gemini', env: 'GEMINI_API_KEY', call: callGemini },
+  { name: 'claude', label: 'Claude', env: ['CLAUDE_API_KEY', 'CLAUDE_API_KEYS'], call: callClaude },
+  { name: 'groq', label: 'Groq', env: ['GROQ_API_KEY', 'GROQ_API_KEYS'], call: callGroq },
+  { name: 'gemini', label: 'Gemini', env: ['GEMINI_API_KEY', 'GEMINI_API_KEYS'], call: callGemini },
 ];
 
 /**
@@ -141,7 +142,7 @@ export async function callAI(req) {
   const opts = { maxTokens: 1200, ...req };
   const tried = [];
   for (const p of PROVIDERS) {
-    const key = (process.env[p.env] || '').trim();
+    const key = p.env.map((n) => (process.env[n] || '').trim()).find(Boolean) || '';
     if (!key) { tried.push({ provider: p.label, reason: '키 비어 있음' }); continue; }
     let candidates;
     try { candidates = await getCandidates(p.name, key); } catch (e) {
